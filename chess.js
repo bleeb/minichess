@@ -43,6 +43,46 @@ c.move = function (e) {
 	c.board.on("click", c.pick);
 	c.toMove = -1;
 	console.log("MOVE");
+	c.aiKing();
+}
+
+c.aiKing = function() {
+	var dr;	
+	var dc;
+	var sr = c.ps[c.ai].piece[0].row;
+	var sc = c.ps[c.ai].piece[0].col;
+
+	var moves = [];
+	for (dr = -1; dr <= 1; dr++) {
+		for (dc = -1; dc <= 1; dc++) {
+			if (dr == 0 && dc == 0) continue; // must move
+			var nr = sr + dr;
+			var nc = sc + dc;
+			if (nr >= c.n_rows || nr < 0 || nc >= c.n_cols || nc < 0)
+				continue; // edge of board
+			//alert("nr = " + nr + ", nc = " + nc);
+			c.ps[c.ai].piece[0] = { "num": 0, "row": nr, "col": nc };
+			//c.drawBoard();
+			//c.drawAllPieces();
+			if (! c.threatened(c.ai, 0)) {
+				moves.push(c.ps[c.ai].piece[0]);
+				//alert("Escape");
+			} //else {
+			//	alert("Check");
+			//}
+		}
+	}
+	if (moves.length == 0) {
+		c.ps[c.ai].piece[0] = { "num": 0, "row": sr, "col": sc };	
+		if (c.threatened(c.ai, 0))
+			alert("Checkmate!");
+		else
+			alert("Stalemate.");
+		return;
+	}
+	c.ps[c.ai].piece[0] = moves[ir(moves.length)];
+	c.drawBoard();
+	c.drawAllPieces();	
 }
 
 c.drawAllPieces = function () {
@@ -74,7 +114,7 @@ c.init = function () {
 		c.place(c.ai, 0);
 		c.place(c.human, 0);
 		c.place(c.human, 1);
-	} while (c.threatened(c.ai, 0) && max--) {
+	} while (c.threatened(c.ai, 0) && max--);
 	if (max <= 0) { alert("Could not find position -- reload page"); }	
 
 	c.p = {};
@@ -91,7 +131,7 @@ c.threatened = function(player, piece) {
 	var other = 1 ^ player;
 	var i;
 	for (i=0; i < c.ps[other].piece.length; ++i) {
-		console.log(c);
+		//console.log(c);
 		if (c.threat(other, i, piece)) {
 			return true;
 		}
@@ -100,7 +140,7 @@ c.threatened = function(player, piece) {
 }
 
 c.threat = function(player, from_p, to_p) {
-	console.log(c);
+//	console.log(c);
 	var piece_type = c.ps[player].piece[from_p].num;
 	var fr = c.ps[player].piece[from_p].row;
 	var fc = c.ps[player].piece[from_p].col;
@@ -114,6 +154,8 @@ c.threat = function(player, from_p, to_p) {
 		case 0:
 			for (row = -1; row <= 1; ++row) {
 				for (col = -1; col <= 1; ++col) {
+					// don't threaten self
+					if (col == 0 && row == 0) continue;
 					if (fr + row == tr
 						&& fc + col == tc) {
 							return true;
@@ -125,11 +167,12 @@ c.threat = function(player, from_p, to_p) {
 		case 1:
 			for (row = -1; row <= 1; ++row) {
 				for (col = -1; col <= 1; ++col) {
-					for (m = 1; m <= c.size ; ++m) {
+					if (col == 0 && row == 0) continue;
+					for (m = 1; m <= c.n_rows ; ++m) {
 						nr = fr + m*row;
 						nc = fc + m*col; 
 						// over edge of board
-						if (nr < 0 || nr > c.size || nc < 0 || nc > c.size)
+						if (nr < 0 || nr > c.n_rows || nc < 0 || nc > c.n_cols)
 							break;
 						// blocking piece
 						// FIXME only works with one other piece
@@ -148,7 +191,7 @@ c.threat = function(player, from_p, to_p) {
 	}
 }
 
-c.place = function(player, piece) {
+c.place = function(player, piece_type) {
 	var placed = 0;
 	var row;
 	var col;
@@ -168,7 +211,7 @@ c.place = function(player, piece) {
 		}
 	}
 	var pi = c.ps[player].piece.length;
-	c.ps[player].piece[pi] = {"num": piece, "row": row, "col": col}; 
+	c.ps[player].piece[pi] = {"num": piece_type, "row": row, "col": col}; 
 }
 
 
