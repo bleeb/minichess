@@ -68,13 +68,14 @@ c.init = function () {
 	c.set = 9;
 	c.toMove = -1;
 
-	c.ps = [{}, {}];
-	c.ps[c.human].piece = [];
-	c.ps[c.ai].piece = [];
-
-	c.place(c.human, 0);
-	c.place(c.human, 1);
-	c.place(c.ai, 0);
+	var max = 1000;
+	do {
+		c.ps = [{"piece":[]},{"piece":[]}];
+		c.place(c.ai, 0);
+		c.place(c.human, 0);
+		c.place(c.human, 1);
+	} while (c.threatened(c.ai, 0) && max--) {
+	if (max <= 0) { alert("Could not find position -- reload page"); }	
 
 	c.p = {};
 	c.p.sheet = new Image();
@@ -84,6 +85,67 @@ c.init = function () {
 	c.p.sx = [235, 57]; // x offsets
 	c.p.sy = 0;
 	c.p.height = 51;
+}
+
+c.threatened = function(player, piece) {
+	var other = 1 ^ player;
+	var i;
+	for (i=0; i < c.ps[other].piece.length; ++i) {
+		console.log(c);
+		if (c.threat(other, i, piece)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+c.threat = function(player, from_p, to_p) {
+	console.log(c);
+	var piece_type = c.ps[player].piece[from_p].num;
+	var fr = c.ps[player].piece[from_p].row;
+	var fc = c.ps[player].piece[from_p].col;
+	var other = 1 ^ player;
+	var tr = c.ps[other].piece[to_p].row;
+	var tc = c.ps[other].piece[to_p].col;
+	
+	var row;
+	var col;
+	switch(piece_type) {
+		case 0:
+			for (row = -1; row <= 1; ++row) {
+				for (col = -1; col <= 1; ++col) {
+					if (fr + row == tr
+						&& fc + col == tc) {
+							return true;
+					}
+				}
+			}
+						
+			return false;
+		case 1:
+			for (row = -1; row <= 1; ++row) {
+				for (col = -1; col <= 1; ++col) {
+					for (m = 1; m <= c.size ; ++m) {
+						nr = fr + m*row;
+						nc = fc + m*col; 
+						// over edge of board
+						if (nr < 0 || nr > c.size || nc < 0 || nc > c.size)
+							break;
+						// blocking piece
+						// FIXME only works with one other piece
+						if (nr == c.ps[player].piece[0].row
+							&& nc == c.ps[player].piece[0].col)
+							break;
+						if (nr == tr && nc == tc)
+							return true;
+					}
+				}
+			}
+
+			return false;
+		default:
+			return false;
+	}
 }
 
 c.place = function(player, piece) {
