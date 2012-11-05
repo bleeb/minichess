@@ -4,24 +4,50 @@ function ir(i) { return Math.floor(Math.random()*i) }
 
 window.onload = function () {
 	c.init();
-	c.drawBoard(c.white_on_right);
+	c.drawBoard();
 
-	c.board.on("click", c.move);
+	c.board.on("click", c.pick);
 
 	setTimeout(function () {
 		c.drawAllPieces();
-	}, 100);
+	}, 500);
+}
+
+c.pick = function (e) {
+	console.log("PICK");
+	var row = Math.floor(e.offsetY / c.size);
+	var col = Math.floor(e.offsetX / c.size);
+	var i;
+
+	for (i = 0; i < c.ps[c.human].piece.length; ++i) {
+		if (row == c.ps[c.human].piece[i].row
+			&& col == c.ps[c.human].piece[i].col) {
+				c.ctx.fillStyle = "rgb(255,0,0)";
+				c.ctx.fillRect(col*c.size, row*c.size, c.size, c.size);
+				c.drawPiece(c.human, i);
+				c.board.off("click");
+				c.board.on("click", c.move);
+				c.toMove = i;
+				return;
+		}
+	}
 }
 
 c.move = function (e) {
 	//console.log(e);
-	c.ps[0].piece[0].row = Math.floor(e.offsetY / c.size);
-	c.ps[0].piece[0].col = Math.floor(e.offsetX / c.size);
+	c.ps[c.human].piece[c.toMove].col = Math.floor(e.offsetX / c.size);
+	c.ps[c.human].piece[c.toMove].row = Math.floor(e.offsetY / c.size);
 	c.drawBoard();
 	c.drawAllPieces();
+	c.board.off("click");
+	c.board.on("click", c.pick);
+	c.toMove = -1;
+	console.log("MOVE");
 }
 
 c.drawAllPieces = function () {
+	var pl;
+	var pi;
 	for (pl=0; pl < 2; pl++) {
 		for (pi=0; pi < c.ps[pl].piece.length; pi++) {
 			c.drawPiece(pl, pi);
@@ -37,12 +63,18 @@ c.init = function () {
 	c.board_size = 480;
 	c.size = c.board_size / c.n_rows;
 	c.white_on_right = 1;
-
+	c.human = 0;
+	c.ai = 1;
 	c.set = 9;
+	c.toMove = -1;
 
 	c.ps = [{}, {}];
-	c.ps[0].piece = [{"num": 0, "row": ir(c.n_rows), "col": ir(c.n_cols)}];
-	c.ps[1].piece = [{"num": 1, "row": ir(c.n_rows), "col": ir(c.n_cols)}];
+	c.ps[c.human].piece = [];
+	c.ps[c.ai].piece = [];
+
+	c.place(c.human, 0);
+	c.place(c.human, 1);
+	c.place(c.ai, 0);
 
 	c.p = {};
 	c.p.sheet = new Image();
@@ -53,6 +85,30 @@ c.init = function () {
 	c.p.sy = 0;
 	c.p.height = 51;
 }
+
+c.place = function(player, piece) {
+	var placed = 0;
+	var row;
+	var col;
+	var pl;
+	var i;
+	while (!placed) {
+		row = ir(c.n_rows);
+		col = ir(c.n_cols);
+		placed = 1;
+		for (pl=0; pl < 2; ++pl) {
+			for (i=0; i < c.ps[pl].piece.length; ++i) {	
+				if (c.ps[pl].piece[i].row == row
+					&& c.ps[pl].piece[i].col == col) {
+					placed = 0;
+				}
+			}	
+		}
+	}
+	var pi = c.ps[player].piece.length;
+	c.ps[player].piece[pi] = {"num": piece, "row": row, "col": col}; 
+}
+
 
 c.drawBoard = function () {
 	var row;
