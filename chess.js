@@ -9,16 +9,24 @@ window.onload = function () {
 	c.board.on("click", c.move);
 
 	setTimeout(function () {
-	c.drawPiece(ir(6), ir(4), ir(4), ir(2), ir(10));
+		c.drawAllPieces();
 	}, 100);
 }
 
 c.move = function (e) {
 	//console.log(e);
-	row = Math.floor(e.offsetY / c.size);
-	col = Math.floor(e.offsetX / c.size);
+	c.ps[0].piece[0].row = Math.floor(e.offsetY / c.size);
+	c.ps[0].piece[0].col = Math.floor(e.offsetX / c.size);
 	c.drawBoard();
-	c.drawPiece(ir(6), col, row, ir(2), ir(10));
+	c.drawAllPieces();
+}
+
+c.drawAllPieces = function () {
+	for (pl=0; pl < 2; pl++) {
+		for (pi=0; pi < c.ps[pl].piece.length; pi++) {
+			c.drawPiece(pl, pi);
+		}
+	}
 }
 
 c.init = function () {
@@ -30,11 +38,18 @@ c.init = function () {
 	c.size = c.board_size / c.n_rows;
 	c.white_on_right = 1;
 
+	c.set = 9;
+
+	c.ps = [{}, {}];
+	c.ps[0].piece = [{"num": 0, "row": ir(c.n_rows), "col": ir(c.n_cols)}];
+	c.ps[1].piece = [{"num": 1, "row": ir(c.n_rows), "col": ir(c.n_cols)}];
+
 	c.p = {};
 	c.p.sheet = new Image();
 	c.p.sheet.src = 'sheet.png';
-	c.p.sx = [57, 235];
 	c.p.widths = [33, 30, 30, 29, 29, 26];
+	//c.p.sx = [57, 235];
+	c.p.sx = [235, 57]; // x offsets
 	c.p.sy = 0;
 	c.p.height = 51;
 }
@@ -55,17 +70,17 @@ c.drawBoard = function () {
 	}
 }
 
-c.drawPiece = function(piece, file, rank, player, set) {
-	console.log(piece + " " + file + " " + rank + " " + player + " " + set);
+c.drawPiece = function(player, piece) {
+//	console.log(file + " " + rank);
 	srcX = c.p.sx[player];
-	for (i = 0; i < piece; ++i) {
+	for (i = 0; i < c.ps[player].piece[piece].num; ++i) {
 		srcX += c.p.widths[i];
 	}	
-	srcW = c.p.widths[piece];
-	srcY = c.p.sy + set * c.p.height;
+	srcW = c.p.widths[c.ps[player].piece[piece].num];
+	srcY = c.p.sy + c.set * c.p.height;
 	srcH = c.p.height;
-	destX = file * c.size;
-	destY = rank * c.size;
+	destX = c.ps[player].piece[piece].col * c.size;
+	destY = c.ps[player].piece[piece].row * c.size;
 	destW = c.size;
 	destH = c.size;	 
 	c.ctx.drawImage(c.p.sheet,srcX,srcY,srcW,srcH,destX,destY,destW,destH);
