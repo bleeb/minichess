@@ -39,34 +39,39 @@ c.pick = function (e) {
 	}
 }
 
-// move pre-selected piece in response to mouse click
-
-c.move = function (e) {
-	//console.log(e);
-	var p = c.ps[c.human].piece[c.toMove];
-	var row = p.row;
-	var col = p.col;	
-	p.col = Math.floor(e.offsetX / c.size);
-	p.row = Math.floor(e.offsetY / c.size);
-	if (row == p.row && col == p.col) {
+// unselect piece selected for move
+c.unselect = function () {
 		c.toMove = -1;
 		c.drawBoard();
 		c.drawAllPieces();
 		c.board.off("click");
 		c.board.on("click", c.pick);
+}
+// move pre-selected piece in response to mouse click
+
+c.move = function (e) {
+	//console.log(e);
+	var p = c.ps[c.human].piece[c.toMove];
+	var col = Math.floor(e.offsetX / c.size);
+	var row = Math.floor(e.offsetY / c.size);
+	
+	if ((row == p.row && col == p.col)
+	|| ! c.canMove(p.num, c.human, p.row, p.col, row, col)) {
+		c.unselect();
 		return;
 	}
+	var save_row = p.row;
+	var save_col = p.col;
+	p.row = row;
+	p.col = col;
 
 	if (p.num == c.king && c.threatened(c.human, c.toMove)) {
-		p.row = row;
-		p.col = col;
+		p.row = save_row;
+		p.col = save_col;
+		c.unselect();
 		return;
 	}
-	c.drawBoard();
-	c.drawAllPieces();
-	c.board.off("click");
-	c.board.on("click", c.pick);
-	c.toMove = -1;
+	c.unselect();
 	console.log("MOVE");
 	c.aiKing();
 }
@@ -190,7 +195,10 @@ c.threat = function(player, from_p, to_p) {
 	var other = 1 ^ player;
 	var tr = c.ps[other].piece[to_p].row;
 	var tc = c.ps[other].piece[to_p].col;
-	
+	return c.canMove(piece_type, player, fr, fc, tr, tc);
+}
+
+c.canMove = function(piece_type, player, fr, fc, tr, tc) {
 	var row;
 	var col;
 	switch(piece_type) {
