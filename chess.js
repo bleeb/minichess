@@ -66,8 +66,9 @@ c.move = function (e) {
 c.aiKing = function() {
 	var dr;	
 	var dc;
-	var sr = c.ps[c.ai].piece[0].row;
-	var sc = c.ps[c.ai].piece[0].col;
+	var king = c.ps[c.ai].piece[0];
+	var sr = king.row;
+	var sc = king.col;
 
 	var moves = [];
 	for (dr = -1; dr <= 1; dr++) {
@@ -79,12 +80,12 @@ c.aiKing = function() {
 				 || nc >= c.n_cols || nc < 0)
 				continue; // edge of board
 			//alert("nr = " + nr + ", nc = " + nc);
-			c.ps[c.ai].piece[0] = {
-				 "num": c.king, "row": nr, "col": nc };
+			king.row = nr;
+			king.col = nc;
 			//c.drawBoard();
 			//c.drawAllPieces();
 			if (! c.threatened(c.ai, 0)) {
-				moves.push(c.ps[c.ai].piece[0]);
+				moves.push({"r":nr,"c":nc});
 				//alert("Escape");
 			} //else {
 			//	alert("Check");
@@ -92,16 +93,28 @@ c.aiKing = function() {
 		}
 	}
 	if (moves.length == 0) {
-		c.ps[c.ai].piece[0] = { "num": c.king, "row": sr, "col": sc };	
+		king.row = sr;
+		king.col = sc;	
 		if (c.threatened(c.ai, 0))
 			alert("Checkmate!");
 		else
 			alert("Stalemate.");
 		return;
 	}
-	c.ps[c.ai].piece[0] = moves[c.ir(moves.length)];
+	var m = c.ir(moves.length);
+	king.row = moves[m].r;
+	king.col = moves[m].c;
+	var captured_queen = false;
+	if (c.ps[c.human].piece[1].row == king.row
+		&& c.ps[c.human].piece[1].col == king.col) {
+		c.ps[c.human].piece[1] = {};
+		captured_queen = true;
+	}
 	c.drawBoard();
-	c.drawAllPieces();	
+	c.drawAllPieces();
+	if (captured_queen) {
+		alert("Stalemate (queen captured).");
+	}	
 }
 
 c.drawAllPieces = function () {
