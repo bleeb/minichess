@@ -1,6 +1,12 @@
 var c = {};
+c.king = 0;
+c.queen = 1;
+c.rook = 2;
+c.bishop = 3;
+c.knight = 4;
+c.pawn = 5;
 
-function ir(i) { return Math.floor(Math.random()*i) }
+c.ir = function(i) { return Math.floor(Math.random()*i) }
 
 window.onload = function () {
 	c.init();
@@ -33,10 +39,20 @@ c.pick = function (e) {
 	}
 }
 
+// move pre-selected piece in response to mouse click
+
 c.move = function (e) {
 	//console.log(e);
-	c.ps[c.human].piece[c.toMove].col = Math.floor(e.offsetX / c.size);
-	c.ps[c.human].piece[c.toMove].row = Math.floor(e.offsetY / c.size);
+	var p = c.ps[c.human].piece[c.toMove];
+	var row = p.row;
+	var col = p.col;	
+	p.col = Math.floor(e.offsetX / c.size);
+	p.row = Math.floor(e.offsetY / c.size);
+	if (p.num == c.king && c.threatened(c.human, c.toMove)) {
+		p.row = row;
+		p.col = col;
+		return;
+	}
 	c.drawBoard();
 	c.drawAllPieces();
 	c.board.off("click");
@@ -46,6 +62,7 @@ c.move = function (e) {
 	c.aiKing();
 }
 
+// assumes AI only has one piece (king)
 c.aiKing = function() {
 	var dr;	
 	var dc;
@@ -58,10 +75,12 @@ c.aiKing = function() {
 			if (dr == 0 && dc == 0) continue; // must move
 			var nr = sr + dr;
 			var nc = sc + dc;
-			if (nr >= c.n_rows || nr < 0 || nc >= c.n_cols || nc < 0)
+			if (nr >= c.n_rows || nr < 0
+				 || nc >= c.n_cols || nc < 0)
 				continue; // edge of board
 			//alert("nr = " + nr + ", nc = " + nc);
-			c.ps[c.ai].piece[0] = { "num": 0, "row": nr, "col": nc };
+			c.ps[c.ai].piece[0] = {
+				 "num": c.king, "row": nr, "col": nc };
 			//c.drawBoard();
 			//c.drawAllPieces();
 			if (! c.threatened(c.ai, 0)) {
@@ -73,14 +92,14 @@ c.aiKing = function() {
 		}
 	}
 	if (moves.length == 0) {
-		c.ps[c.ai].piece[0] = { "num": 0, "row": sr, "col": sc };	
+		c.ps[c.ai].piece[0] = { "num": c.king, "row": sr, "col": sc };	
 		if (c.threatened(c.ai, 0))
 			alert("Checkmate!");
 		else
 			alert("Stalemate.");
 		return;
 	}
-	c.ps[c.ai].piece[0] = moves[ir(moves.length)];
+	c.ps[c.ai].piece[0] = moves[c.ir(moves.length)];
 	c.drawBoard();
 	c.drawAllPieces();	
 }
@@ -111,9 +130,9 @@ c.init = function () {
 	var max = 1000;
 	do {
 		c.ps = [{"piece":[]},{"piece":[]}];
-		c.place(c.ai, 0);
-		c.place(c.human, 0);
-		c.place(c.human, 1);
+		c.place(c.ai, c.king);
+		c.place(c.human, c.king);
+		c.place(c.human, c.queen);
 	} while (c.threatened(c.ai, 0) && max--);
 	if (max <= 0) { alert("Could not find position -- reload page"); }	
 
@@ -127,6 +146,7 @@ c.init = function () {
 	c.p.height = 51;
 }
 
+// true if #piece is threatened by player
 c.threatened = function(player, piece) {
 	var other = 1 ^ player;
 	var i;
@@ -139,6 +159,7 @@ c.threatened = function(player, piece) {
 	return false;
 }
 
+// player's from piece threatens opponents to piece
 c.threat = function(player, from_p, to_p) {
 //	console.log(c);
 	var piece_type = c.ps[player].piece[from_p].num;
@@ -151,7 +172,7 @@ c.threat = function(player, from_p, to_p) {
 	var row;
 	var col;
 	switch(piece_type) {
-		case 0:
+		case c.king:
 			for (row = -1; row <= 1; ++row) {
 				for (col = -1; col <= 1; ++col) {
 					// don't threaten self
@@ -164,7 +185,7 @@ c.threat = function(player, from_p, to_p) {
 			}
 						
 			return false;
-		case 1:
+		case c.queen:
 			for (row = -1; row <= 1; ++row) {
 				for (col = -1; col <= 1; ++col) {
 					if (col == 0 && row == 0) continue;
@@ -172,7 +193,8 @@ c.threat = function(player, from_p, to_p) {
 						nr = fr + m*row;
 						nc = fc + m*col; 
 						// over edge of board
-						if (nr < 0 || nr > c.n_rows || nc < 0 || nc > c.n_cols)
+						if (nr < 0 || nr > c.n_rows
+						 || nc < 0 || nc > c.n_cols)
 							break;
 						// blocking piece
 						// FIXME only works with one other piece
@@ -191,21 +213,23 @@ c.threat = function(player, from_p, to_p) {
 	}
 }
 
+// choose a random place for a piece of a given type
 c.place = function(player, piece_type) {
-	var placed = 0;
+	var placed = false;
 	var row;
 	var col;
 	var pl;
 	var i;
 	while (!placed) {
-		row = ir(c.n_rows);
-		col = ir(c.n_cols);
-		placed = 1;
+		row = c.ir(c.n_rows);
+		col = c.ir(c.n_cols);
+		placed = true;
+		// make sure another piece is not there
 		for (pl=0; pl < 2; ++pl) {
 			for (i=0; i < c.ps[pl].piece.length; ++i) {	
 				if (c.ps[pl].piece[i].row == row
 					&& c.ps[pl].piece[i].col == col) {
-					placed = 0;
+					placed = false;
 				}
 			}	
 		}
@@ -231,6 +255,7 @@ c.drawBoard = function () {
 	}
 }
 
+// draw numbered piece
 c.drawPiece = function(player, piece) {
 //	console.log(file + " " + rank);
 	srcX = c.p.sx[player];
