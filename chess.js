@@ -46,6 +46,7 @@ window.onload = function () {
 	}, 100);
 }
 
+// enumerated constants
 c.king = 0;
 c.queen = 1;
 c.rook = 2;
@@ -53,6 +54,7 @@ c.bishop = 3;
 c.knight = 4;
 c.pawn = 5;
 
+// random int < i
 c.ir = function(i) { return Math.floor(Math.random()*i) }
 
 // select a piece to be moved
@@ -304,7 +306,8 @@ c.drawPiece = function(player, piece) {
 	srcH = c.p.height;
 	destX = c.ps[player].piece[piece].col * c.size;
 	destY = c.ps[player].piece[piece].row * c.size;
-	destW = c.size;
+	destW = c.size * c.p.widths[piece] / c.p.height;
+	destX += (c.size - destW) / 2;
 	destH = c.size;	 
 	c.ctx.drawImage(c.p.sheet,srcX,srcY,srcW,srcH,destX,destY,destW,destH);
 }

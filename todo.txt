@@ -1,0 +1,12 @@
+6. highlight movable squares
+5. annotate moves
+7. preview move possibilites for each piece
+8. Firefox - onclick doesn't 
+
+done
+
+1. don't allow player to move king into check
+2. stalemate if ai king captures queen
+3. don't allow null moves
+4. verify moves are legal
+9. resize pieces to preserve aspect ratio
