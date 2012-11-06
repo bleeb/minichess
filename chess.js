@@ -48,6 +48,15 @@ c.move = function (e) {
 	var col = p.col;	
 	p.col = Math.floor(e.offsetX / c.size);
 	p.row = Math.floor(e.offsetY / c.size);
+	if (row == p.row && col == p.col) {
+		c.toMove = -1;
+		c.drawBoard();
+		c.drawAllPieces();
+		c.board.off("click");
+		c.board.on("click", c.pick);
+		return;
+	}
+
 	if (p.num == c.king && c.threatened(c.human, c.toMove)) {
 		p.row = row;
 		p.col = col;
