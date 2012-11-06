@@ -1,4 +1,51 @@
 var c = {};
+
+c.init = function () {
+	// dom elements
+	c.board = $('#board');
+	c.ctx = c.board[0].getContext('2d');
+
+	// static parameters
+	c.n_rows = 4;
+	c.n_cols = 4;
+	c.board_size = 480;
+	c.size = c.board_size / c.n_rows;
+	c.white_on_right = 1;
+	c.human = 0;
+	c.ai = 1;
+	c.set = 9;
+	c.toMove = -1;
+
+	// set up pieces
+	var max = 1000;
+	do {
+		c.ps = [{"piece":[]},{"piece":[]}];
+		c.place(c.ai, c.king);
+		c.place(c.human, c.king);
+		c.place(c.human, c.queen);
+	} while (c.threatened(c.ai, 0) && max--);
+	if (max <= 0) { alert("Could not find position -- reload page"); }	
+
+	// spritesheet
+	c.p = {};
+	c.p.sheet = new Image();
+	c.p.sheet.src = 'sheet.png';
+	c.p.widths = [33, 30, 30, 29, 29, 26];
+	//c.p.sx = [57, 235];
+	c.p.sx = [235, 57]; // x offsets
+	c.p.sy = 0;
+	c.p.height = 51;
+}
+
+window.onload = function () {
+	c.init();
+	c.drawBoard();
+	c.board.on("click", c.pick);
+	setTimeout(function () {
+		c.drawAllPieces();
+	}, 100);
+}
+
 c.king = 0;
 c.queen = 1;
 c.rook = 2;
@@ -8,17 +55,7 @@ c.pawn = 5;
 
 c.ir = function(i) { return Math.floor(Math.random()*i) }
 
-window.onload = function () {
-	c.init();
-	c.drawBoard();
-
-	c.board.on("click", c.pick);
-
-	setTimeout(function () {
-		c.drawAllPieces();
-	}, 500);
-}
-
+// select a piece to be moved
 c.pick = function (e) {
 	console.log("PICK");
 	var row = Math.floor(e.offsetY / c.size);
@@ -47,8 +84,8 @@ c.unselect = function () {
 		c.board.off("click");
 		c.board.on("click", c.pick);
 }
-// move pre-selected piece in response to mouse click
 
+// move pre-selected piece in response to mouse click
 c.move = function (e) {
 	//console.log(e);
 	var p = c.ps[c.human].piece[c.toMove];
@@ -76,7 +113,7 @@ c.move = function (e) {
 	c.aiKing();
 }
 
-// assumes AI only has one piece (king)
+// move AI player's king - assume AI has only one piece
 c.aiKing = function() {
 	var dr;	
 	var dc;
@@ -131,6 +168,7 @@ c.aiKing = function() {
 	}	
 }
 
+// draw all of each player's pieces
 c.drawAllPieces = function () {
 	var pl;
 	var pi;
@@ -141,39 +179,7 @@ c.drawAllPieces = function () {
 	}
 }
 
-c.init = function () {
-	c.board = $('#board');
-	c.ctx = c.board[0].getContext('2d');
-	c.n_rows = 4;
-	c.n_cols = 4;
-	c.board_size = 480;
-	c.size = c.board_size / c.n_rows;
-	c.white_on_right = 1;
-	c.human = 0;
-	c.ai = 1;
-	c.set = 9;
-	c.toMove = -1;
-
-	var max = 1000;
-	do {
-		c.ps = [{"piece":[]},{"piece":[]}];
-		c.place(c.ai, c.king);
-		c.place(c.human, c.king);
-		c.place(c.human, c.queen);
-	} while (c.threatened(c.ai, 0) && max--);
-	if (max <= 0) { alert("Could not find position -- reload page"); }	
-
-	c.p = {};
-	c.p.sheet = new Image();
-	c.p.sheet.src = 'sheet.png';
-	c.p.widths = [33, 30, 30, 29, 29, 26];
-	//c.p.sx = [57, 235];
-	c.p.sx = [235, 57]; // x offsets
-	c.p.sy = 0;
-	c.p.height = 51;
-}
-
-// true if #piece is threatened by player
+// bool: player's #piece can be captured by opponent
 c.threatened = function(player, piece) {
 	var other = 1 ^ player;
 	var i;
@@ -186,7 +192,7 @@ c.threatened = function(player, piece) {
 	return false;
 }
 
-// player's from piece threatens opponents to piece
+// bool: player's from piece can capture opponents to piece
 c.threat = function(player, from_p, to_p) {
 //	console.log(c);
 	var piece_type = c.ps[player].piece[from_p].num;
@@ -198,6 +204,7 @@ c.threat = function(player, from_p, to_p) {
 	return c.canMove(piece_type, player, fr, fc, tr, tc);
 }
 
+// bool: can player move a piece_type from r,c to r,c
 c.canMove = function(piece_type, player, fr, fc, tr, tc) {
 	var row;
 	var col;
@@ -268,7 +275,7 @@ c.place = function(player, piece_type) {
 	c.ps[player].piece[pi] = {"num": piece_type, "row": row, "col": col}; 
 }
 
-
+// erase and redraw empty board
 c.drawBoard = function () {
 	var row;
 	var col;
@@ -285,7 +292,7 @@ c.drawBoard = function () {
 	}
 }
 
-// draw numbered piece
+// draw a numbered piece
 c.drawPiece = function(player, piece) {
 //	console.log(file + " " + rank);
 	srcX = c.p.sx[player];
