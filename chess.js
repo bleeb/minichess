@@ -13,7 +13,7 @@ c.init = function () {
 	c.white_on_right = 1;
 	c.human = 0;
 	c.ai = 1;
-	c.set = 9;
+	c.set = 7;
 	c.toMove = -1;
 
 	// set up pieces
@@ -41,6 +41,14 @@ window.onload = function () {
 	c.init();
 	c.drawBoard();
 	c.board.on("click", c.pick);
+
+	$(document)[0].oncontextmenu = function() {return false;} 
+	c.board.on("mousedown", function (e) {
+		if (e.button == 2) {
+			c.toggleField(Math.floor(e.offsetY/c.size),
+					Math.floor(e.offsetX/c.size));
+		}
+	});
 	setTimeout(function () {
 		c.drawAllPieces();
 	}, 100);
@@ -53,6 +61,30 @@ c.rook = 2;
 c.bishop = 3;
 c.knight = 4;
 c.pawn = 5;
+
+// toggle whether to show force field around piece
+c.toggleField = function(row, col) {
+	var pl;
+	var pi;
+	var p = false;
+	findpiece:
+	for (pl=0; pl < 2; ++pl) {
+		for (pi=0; pi < c.ps[pl].piece.length; ++pi) {
+			var t = c.ps[pl].piece[pi];
+			if (t.row == row && t.col == col) {
+				p = t;
+				break findpiece;
+			}		
+		}
+	}
+	if (!p) { return; }
+	p.field = !p.field;
+
+	//alert(pl + " " + p.num);
+	// modify canMove 
+	c.drawBoard();
+	c.drawAllPieces();
+}
 
 // random int < i
 c.ir = function(i) { return Math.floor(Math.random()*i) }
@@ -206,6 +238,15 @@ c.threat = function(player, from_p, to_p) {
 	return c.canMove(piece_type, player, fr, fc, tr, tc);
 }
 
+//c.eachMove = function(piece_type, player, fr, fc, f) {
+
+//}
+
+//c.f = function () {
+
+//}
+
+
 // bool: can player move a piece_type from r,c to r,c
 c.canMove = function(piece_type, player, fr, fc, tr, tc) {
 	var row;
@@ -274,7 +315,8 @@ c.place = function(player, piece_type) {
 		}
 	}
 	var pi = c.ps[player].piece.length;
-	c.ps[player].piece[pi] = {"num": piece_type, "row": row, "col": col}; 
+	c.ps[player].piece[pi] = {"num": piece_type, "row": row, "col": col,
+				"field": false}; 
 }
 
 // erase and redraw empty board
@@ -297,18 +339,34 @@ c.drawBoard = function () {
 // draw a numbered piece
 c.drawPiece = function(player, piece) {
 //	console.log(file + " " + rank);
-	srcX = c.p.sx[player];
-	for (i = 0; i < c.ps[player].piece[piece].num; ++i) {
+	var srcX = c.p.sx[player];
+	var p = c.ps[player].piece[piece];
+	var i;
+	for (i = 0; i < p.num; ++i) {
 		srcX += c.p.widths[i];
 	}	
-	srcW = c.p.widths[c.ps[player].piece[piece].num];
-	srcY = c.p.sy + c.set * c.p.height;
-	srcH = c.p.height;
-	destX = c.ps[player].piece[piece].col * c.size;
-	destY = c.ps[player].piece[piece].row * c.size;
+	var srcW = c.p.widths[p.num];
+	var srcY = c.p.sy + c.set * c.p.height;
+	var srcH = c.p.height;
+	var destX = p.col * c.size;
+	var destY = p.row * c.size;
 	destW = c.size * c.p.widths[piece] / c.p.height;
 	destX += (c.size - destW) / 2;
 	destH = c.size;	 
 	c.ctx.drawImage(c.p.sheet,srcX,srcY,srcW,srcH,destX,destY,destW,destH);
+	if (! p.field) { return; }
+
+	c.ctx.fillStyle = "rgba(0,0,255,0.4)";
+	c.ctx.fillRect(p.col*c.size,p.row*c.size,c.size,c.size);
+	var row;
+	var col;
+	for (row = 0; row < c.n_rows; ++row) {
+		for (col = 0; col < c.n_cols; ++col) {
+			if (c.canMove(p.num, player, p.row, p.col, row, col)) {
+				c.ctx.fillRect(col*c.size, row*c.size, c.size, c.size, 0.1); 
+				console.log(p.num + " " + player + " " + row + " " + col);
+			}
+		}
+	}
 }
 
