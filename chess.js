@@ -31,7 +31,6 @@ c.init = function () {
 	c.p.sheet = new Image();
 	c.p.sheet.src = 'sheet.png';
 	c.p.widths = [33, 30, 30, 29, 29, 26];
-	//c.p.sx = [57, 235];
 	c.p.sx = [235, 57]; // x offsets
 	c.p.sy = 0;
 	c.p.height = 51;
@@ -40,6 +39,7 @@ c.init = function () {
 window.onload = function () {
 	c.init();
 	c.drawBoard();
+	//c.drawLabels();
 	c.board.on("click", c.pick);
 
 	$(document)[0].oncontextmenu = function() {return false;} 
@@ -331,6 +331,19 @@ c.drawBoard = function () {
 				c.ctx.fillRect(row*c.size, col*c.size, c.size, c.size);
 			}
 		}
+	}
+}
+
+c.drawLabels = function () {
+	c.ctx.fillStyle = "rgb(0,255,0)";
+	c.ctx.font = String(c.size/2)+"px sans-serif"; 
+	c.ctx.textBaseline = "top";
+	var start = "a".charCodeAt(0);
+	var num = "1".charCodeAt(0);
+	var i;
+	for (i = 0; i < c.n_rows; ++i) {
+		c.ctx.fillText(String.fromCharCode(start+i), (.4+i)*c.size, c.board_size);
+		c.ctx.fillText(String.fromCharCode(num+i), c.board_size+c.size/6, (c.n_rows-.8-i)*c.size);
 	}
 }
 
