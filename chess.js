@@ -24,7 +24,7 @@ c.init = function () {
 		c.place(c.human, c.king);
 		c.place(c.human, c.queen);
 	} while (c.threatened(c.ai, 0) && max--);
-	if (max <= 0) { alert("Could not find position -- reload page"); }	
+	if (max <= 0) { $('#status').append("Could not find position -- reload page"); }	
 
 	// spritesheet
 	c.p = {};
@@ -141,6 +141,10 @@ c.move = function (e) {
 		return;
 	}
 	c.unselect();
+	var codes = new Array("K", "Q");
+	var cols = new Array("a", "b", "c", "d");
+	$('#status').append(codes[p.num] + cols[save_col] + (4-save_row) + "-" + cols[p.col] + (4-p.row));
+	$('#status').append('<br />');
 	console.log("MOVE");
 	c.aiKing();
 }
@@ -179,9 +183,9 @@ c.aiKing = function() {
 		king.row = sr;
 		king.col = sc;	
 		if (c.threatened(c.ai, 0))
-			alert("Checkmate!");
+			$('#status').append("Checkmate!");
 		else
-			alert("Stalemate.");
+			$('#status').append("Stalemate.");
 		return;
 	}
 	var m = c.ir(moves.length);
@@ -196,7 +200,7 @@ c.aiKing = function() {
 	c.drawBoard();
 	c.drawAllPieces();
 	if (captured_queen) {
-		alert("Stalemate (queen captured).");
+		$('#status').append("Stalemate (queen captured).");
 	}	
 }
 
