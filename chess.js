@@ -13,7 +13,7 @@ c.init = function () {
 	c.white_on_right = 1;
 	c.human = 0;
 	c.ai = 1;
-	c.set = 7;
+	c.set = 9;
 	c.toMove = -1;
 
 	// set up pieces
@@ -80,8 +80,6 @@ c.toggleField = function(row, col) {
 	if (!p) { return; }
 	p.field = !p.field;
 
-	//alert(pl + " " + p.num);
-	// modify canMove 
 	c.drawBoard();
 	c.drawAllPieces();
 }
@@ -127,7 +125,7 @@ c.move = function (e) {
 	var row = Math.floor(e.offsetY / c.size);
 	
 	if ((row == p.row && col == p.col)
-	|| ! c.canMove(p.num, c.human, p.row, p.col, row, col)) {
+	|| ! c.canMove(p.num, c.human, p.row, p.col, row, col, true)) {
 		c.unselect();
 		return;
 	}
@@ -235,20 +233,15 @@ c.threat = function(player, from_p, to_p) {
 	var other = 1 ^ player;
 	var tr = c.ps[other].piece[to_p].row;
 	var tc = c.ps[other].piece[to_p].col;
-	return c.canMove(piece_type, player, fr, fc, tr, tc);
+	return c.canMove(piece_type, player, fr, fc, tr, tc, false);
 }
 
-//c.eachMove = function(piece_type, player, fr, fc, f) {
+// bool: can player move a piece_type from fr,fc to tr,tc
 
-//}
-
-//c.f = function () {
-
-//}
-
-
-// bool: can player move a piece_type from r,c to r,c
-c.canMove = function(piece_type, player, fr, fc, tr, tc) {
+// avoid_own_piece(bool): do not consider a piece can move onto a piece of the same color
+// true when we are highlighting which squares we can move to
+// false when planning moves ahead (if piece at tr,tc is lost, fr,fc defends)
+c.canMove = function(piece_type, player, fr, fc, tr, tc, avoid_own_piece) {
 	var row;
 	var col;
 	switch(piece_type) {
@@ -259,6 +252,11 @@ c.canMove = function(piece_type, player, fr, fc, tr, tc) {
 					if (col == 0 && row == 0) continue;
 					if (fr + row == tr
 						&& fc + col == tc) {
+							// don't move onto queen
+							var p = c.ps[player].piece[1];
+							if (avoid_own_piece && p && p.col == tc && p.row == tr) {
+								return false;
+							}
 							return true;
 					}
 				}
@@ -356,13 +354,19 @@ c.drawPiece = function(player, piece) {
 	c.ctx.drawImage(c.p.sheet,srcX,srcY,srcW,srcH,destX,destY,destW,destH);
 	if (! p.field) { return; }
 
-	c.ctx.fillStyle = "rgba(0,0,255,0.4)";
-	c.ctx.fillRect(p.col*c.size,p.row*c.size,c.size,c.size);
 	var row;
 	var col;
 	for (row = 0; row < c.n_rows; ++row) {
 		for (col = 0; col < c.n_cols; ++col) {
-			if (c.canMove(p.num, player, p.row, p.col, row, col)) {
+			if (c.canMove(p.num, player, p.row, p.col, row, col, true)) {
+
+      				var grd = c.ctx.createRadialGradient((col+.5)*c.size, (row+.5)*c.size,
+						 0, (col+.5)*(c.size), (row+.5)*(c.size), c.size/2);
+      				// light blue
+      				grd.addColorStop((row+col+c.white_on_right)%2, '#ffffff');   
+      				// dark blue
+      				grd.addColorStop((row+col+!c.white_on_right)%2, '#00ff00');
+      				c.ctx.fillStyle = grd;
 				c.ctx.fillRect(col*c.size, row*c.size, c.size, c.size, 0.1); 
 				console.log(p.num + " " + player + " " + row + " " + col);
 			}
