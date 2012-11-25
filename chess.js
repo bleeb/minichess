@@ -143,9 +143,9 @@ c.move = function (e) {
 	c.unselect();
 	var codes = new Array("K", "Q");
 	var cols = new Array("a", "b", "c", "d");
-	$('#status').append(codes[p.num] + cols[save_col] + (4-save_row) + "-" + cols[p.col] + (4-p.row));
-	$('#status').append(' ');
-	console.log("MOVE");
+	$('#status ol').append(
+		$('<li>').append(
+			codes[p.num] + cols[save_col] + (4-save_row) + "-" + cols[p.col] + (4-p.row)));
 	c.aiKing();
 }
 
@@ -182,30 +182,32 @@ c.aiKing = function() {
 	if (moves.length == 0) {
 		king.row = sr;
 		king.col = sc;	
-		if (c.threatened(c.ai, 0))
+		if (c.threatened(c.ai, 0)) {
+			$('#status ol li:last').append('#');
 			$('#status').append("Checkmate!");
-		else
+		} else {
+			$('#status ol li:last').append('?');
 			$('#status').append("Stalemate.");
+		}
 		return;
 	}
 	var m = c.ir(moves.length);
 	var codes = new Array("K", "Q");
 	var cols = new Array("a", "b", "c", "d");
-	$('#status').append(codes[0] + cols[sc] + (4-sr) + "-" + cols[moves[m].c] + (4-moves[m].r));
-	$('#status').append('<br />');
+	var move_str = ' ' + codes[0] + cols[sc] + (4-sr)
+				+ "-" + cols[moves[m].c] + (4-moves[m].r);
 	king.row = moves[m].r;
 	king.col = moves[m].c;
 	var captured_queen = false;
 	if (c.ps[c.human].piece[1].row == king.row
 		&& c.ps[c.human].piece[1].col == king.col) {
 		c.ps[c.human].piece[1] = {};
-		captured_queen = true;
+		$('#status ol li:last').append('?');
+		$('#status').append("Stalemate (queen captured).");
 	}
 	c.drawBoard();
 	c.drawAllPieces();
-	if (captured_queen) {
-		$('#status').append("Stalemate (queen captured).");
-	}	
+	$('#status ol li:last').append(move_str);
 }
 
 // draw all of each player's pieces
