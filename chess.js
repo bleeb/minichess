@@ -144,7 +144,7 @@ c.move = function (e) {
 	var codes = new Array("K", "Q");
 	var cols = new Array("a", "b", "c", "d");
 	$('#status').append(codes[p.num] + cols[save_col] + (4-save_row) + "-" + cols[p.col] + (4-p.row));
-	$('#status').append('<br />');
+	$('#status').append(' ');
 	console.log("MOVE");
 	c.aiKing();
 }
@@ -189,6 +189,10 @@ c.aiKing = function() {
 		return;
 	}
 	var m = c.ir(moves.length);
+	var codes = new Array("K", "Q");
+	var cols = new Array("a", "b", "c", "d");
+	$('#status').append(codes[0] + cols[sc] + (4-sr) + "-" + cols[moves[m].c] + (4-moves[m].r));
+	$('#status').append('<br />');
 	king.row = moves[m].r;
 	king.col = moves[m].c;
 	var captured_queen = false;
