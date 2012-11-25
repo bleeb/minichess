@@ -29,7 +29,7 @@ c.init = function () {
 	// spritesheet
 	c.p = {};
 	c.p.sheet = new Image();
-	c.p.sheet.src = 'sheet.png';
+	c.p.sheet.src = 'http://img689.imageshack.us/img689/2497/sheetqx.png';
 	c.p.widths = [33, 30, 30, 29, 29, 26];
 	c.p.sx = [235, 57]; // x offsets
 	c.p.sy = 0;
