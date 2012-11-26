@@ -52,8 +52,7 @@ window.onload = function () {
 	$(document)[0].oncontextmenu = function() {return false;} 
 	c.board.on("mousedown", function (e) {
 		if (e.button == 2) {
-			c.toggleField(Math.floor(e.offsetY/c.size),
-					Math.floor(e.offsetX/c.size));
+			c.toggleField(c.row(e), c.col(e));
 		}
 	});
 //	setTimeout(function () {
@@ -94,12 +93,29 @@ c.toggleField = function(row, col) {
 // random int < i
 c.ir = function(i) { return Math.floor(Math.random()*i) }
 
+// col & row helper functions: Firefox does not implement offsetX/offsetY
+c.col = function (e) {
+	if (typeof e.offsetX === "undefined") {
+		return Math.floor((e.pageX - $(e.target).offset().left) / c.size);
+	} else {
+		return Math.floor(e.offsetX / c.size);
+	}
+}
+
+c.row = function (e) {
+	if (typeof e.offsetY === "undefined") {
+   		return Math.floor((e.pageY - $(e.target).offset().top) / c.size);
+	} else {
+		return Math.floor(e.offsetY / c.size);
+	}
+}
+
 // select a piece to be moved
 c.pick = function (e) {
 	console.log("PICK");
-	var row = Math.floor(e.offsetY / c.size);
-	var col = Math.floor(e.offsetX / c.size);
 	var i;
+	var row = c.row(e);
+	var col = c.col(e);
 
 	for (i = 0; i < c.ps[c.human].piece.length; ++i) {
 		if (row == c.ps[c.human].piece[i].row
@@ -128,8 +144,8 @@ c.unselect = function () {
 c.move = function (e) {
 	//console.log(e);
 	var p = c.ps[c.human].piece[c.toMove];
-	var col = Math.floor(e.offsetX / c.size);
-	var row = Math.floor(e.offsetY / c.size);
+	var col = c.col(e);
+	var row = c.row(e);
 	
 	if ((row == p.row && col == p.col)
 	|| ! c.canMove(p.num, c.human, p.row, p.col, row, col, true)) {

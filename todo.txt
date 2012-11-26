@@ -1,13 +1,16 @@
-  8. Firefox - onclick doesn't 
+ 19. help / intro
+  7. tutorial: show move possibilites for each piece
+ 15. make sure we don't draw pieces before board (sprite onload) 
  10. automated test: selenium or watir
  13. controls to change piece set 
  14. break styles into .css file
- 15. make sure we don't draw pieces before board (sprite onload) 
- 16. when mousing over a square w piece selected, preview attacked squares
-  7. tutorial: show move possibilites for each piece
-  
+ 16. when mousing over a square w/ piece selected, preview attacked squares
+ 17. use Unicode piece symbols instead of K/Q
+ 18. new art for pieces
+
 done
 
+  8. Firefox - onclick doesn't 
  12. controls to restart game
  11. controls to resize board
   5. annotate moves
