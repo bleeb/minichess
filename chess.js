@@ -142,12 +142,23 @@ c.move = function (e) {
 		return;
 	}
 	c.unselect();
-	var codes = new Array("K", "Q");
-	var cols = new Array("a", "b", "c", "d");
-	$('#status ol').append(
-		$('<li>').append(
-			codes[p.num] + cols[save_col] + (4-save_row) + "-" + cols[p.col] + (4-p.row)));
+	c.logMove(c.human, p.num, save_col, save_row, p.col, p.row);
 	c.aiKing();
+}
+
+c.logMove = function(player, piece_num, fc, fr, tc, tr) {
+	var codes = new Array("K", "Q");
+	var move_str = codes[piece_num]
+		 + String.fromCharCode(fc+"a".charCodeAt(0)) + (c.n_rows - fr) + "-"
+		 + String.fromCharCode(tc+"a".charCodeAt(0)) + (c.n_rows - tr);
+
+	if (player === c.human) {
+		$('#status ol').append(
+			$('<li>').append(move_str)
+		);
+	} else {
+		$('#status ol li:last').append(' ' + move_str);
+	}
 }
 
 // move AI player's king - assume AI has only one piece
@@ -193,22 +204,17 @@ c.aiKing = function() {
 		return;
 	}
 	var m = c.ir(moves.length);
-	var codes = new Array("K", "Q");
-	var cols = new Array("a", "b", "c", "d");
-	var move_str = ' ' + codes[0] + cols[sc] + (4-sr)
-				+ "-" + cols[moves[m].c] + (4-moves[m].r);
 	king.row = moves[m].r;
 	king.col = moves[m].c;
-	var captured_queen = false;
 	if (c.ps[c.human].piece[1].row == king.row
 		&& c.ps[c.human].piece[1].col == king.col) {
 		c.ps[c.human].piece[1] = {};
 		$('#status ol li:last').append('?');
 		$('#status').append("Stalemate (queen captured).");
 	}
+	c.logMove(c.ai, c.king, sc, sr, king.row, king.col);
 	c.drawBoard();
 	c.drawAllPieces();
-	$('#status ol li:last').append(move_str);
 }
 
 // draw all of each player's pieces
