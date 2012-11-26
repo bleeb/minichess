@@ -1,4 +1,5 @@
 var c = {};
+c.p = {};
 
 c.init = function () {
 	// dom elements
@@ -6,8 +7,8 @@ c.init = function () {
 	c.ctx = c.board[0].getContext('2d');
 
 	// static parameters
-	c.n_rows = 4;
-	c.n_cols = 4;
+	c.n_rows = $('[type=radio]:checked').val();
+	c.n_cols = c.n_rows;
 	c.board_size = 480;
 	c.size = c.board_size / c.n_rows;
 	c.white_on_right = 1;
@@ -35,11 +36,16 @@ c.init = function () {
 	c.p.sy = 0;
 	c.p.height = 51;
 	c.p.sheet.onload = c.drawAllPieces;
+	
+	c.drawBoard();
+	$('#status').empty();
+	$('ol').empty();
 }
 
 window.onload = function () {
+	$('#start').on("click", function (e) { c.init(); });
+
 	c.init();
-	c.drawBoard();
 	//c.drawLabels();
 	c.board.on("click", c.pick);
 
@@ -153,11 +159,11 @@ c.logMove = function(player, piece_num, fc, fr, tc, tr) {
 		 + String.fromCharCode(tc+"a".charCodeAt(0)) + (c.n_rows - tr);
 
 	if (player === c.human) {
-		$('#status ol').append(
+		$('ol').append(
 			$('<li>').append(move_str)
 		);
 	} else {
-		$('#status ol li:last').append(' ' + move_str);
+		$('ol li:last').append(' ' + move_str);
 	}
 }
 
@@ -195,10 +201,10 @@ c.aiKing = function() {
 		king.row = sr;
 		king.col = sc;	
 		if (c.threatened(c.ai, 0)) {
-			$('#status ol li:last').append('#');
+			$('ol li:last').append('#');
 			$('#status').append("Checkmate!");
 		} else {
-			$('#status ol li:last').append('?');
+			$('ol li:last').append('?');
 			$('#status').append("Stalemate.");
 		}
 		return;
@@ -209,10 +215,10 @@ c.aiKing = function() {
 	if (c.ps[c.human].piece[1].row == king.row
 		&& c.ps[c.human].piece[1].col == king.col) {
 		c.ps[c.human].piece[1] = {};
-		$('#status ol li:last').append('?');
+		$('ol li:last').append('?');
 		$('#status').append("Stalemate (queen captured).");
 	}
-	c.logMove(c.ai, c.king, sc, sr, king.row, king.col);
+	c.logMove(c.ai, c.king, sc, sr, king.col, king.row);
 	c.drawBoard();
 	c.drawAllPieces();
 }

@@ -1,14 +1,15 @@
- 11. controls to resize board
- 12. controls to restart game
   8. Firefox - onclick doesn't 
  10. automated test: selenium or watir
-  7. tutorial: show move possibilites for each piece
  13. controls to change piece set 
  14. break styles into .css file
- 15. detect when spritesheet has loaded instead of pausing 5 seconds
-
+ 15. make sure we don't draw pieces before board (sprite onload) 
+ 16. when mousing over a square w piece selected, preview attacked squares
+  7. tutorial: show move possibilites for each piece
+  
 done
 
+ 12. controls to restart game
+ 11. controls to resize board
   5. annotate moves
   6. highlight movable squares
   1. don't allow player to move king into check
