@@ -5,6 +5,7 @@
   7. tutorial: show move possibilites for each piece
  13. controls to change piece set 
  14. break styles into .css file
+ 15. detect when spritesheet has loaded instead of pausing 5 seconds
 
 done
 

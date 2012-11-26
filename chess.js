@@ -34,6 +34,7 @@ c.init = function () {
 	c.p.sx = [235, 57]; // x offsets
 	c.p.sy = 0;
 	c.p.height = 51;
+	c.p.sheet.onload = c.drawAllPieces;
 }
 
 window.onload = function () {
@@ -49,9 +50,9 @@ window.onload = function () {
 					Math.floor(e.offsetX/c.size));
 		}
 	});
-	setTimeout(function () {
-		c.drawAllPieces();
-	}, 5000); // wait for spritesheet to load
+//	setTimeout(function () {
+//		c.drawAllPieces();
+//	}, 5000); // wait for spritesheet to load
 }
 
 // enumerated constants
