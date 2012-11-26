@@ -51,7 +51,7 @@ window.onload = function () {
 	});
 	setTimeout(function () {
 		c.drawAllPieces();
-	}, 100);
+	}, 5000); // wait for spritesheet to load
 }
 
 // enumerated constants
