@@ -146,7 +146,7 @@ c.row = function (e) {
 
 // select a piece to be moved
 c.pick = function (e) {
-	console.log("PICK");
+	//console.log("PICK");
 	var i;
 	var row = c.row(e);
 	var col = c.col(e);
@@ -181,24 +181,19 @@ c.move = function (e) {
 	var col = c.col(e);
 	var row = c.row(e);
 	
+	c.unselect();
+
 	if ((row == p.row && col == p.col)
-	|| ! c.canMove(p.num, c.human, p.row, p.col, row, col, true)) {
-		c.unselect();
+	|| ! c.canMove(p.num, c.human, p.row, p.col, row, col, true)
+	|| (p.num == c.king && c.check(c.human, row, col))) {
 		return;
 	}
-	var save_row = p.row;
-	var save_col = p.col;
+	c.logMove(c.human, p.num, p.col, p.row, col, row);
 	p.row = row;
 	p.col = col;
 
-	if (p.num == c.king && c.threatened(c.human, c.toMove)) {
-		p.row = save_row;
-		p.col = save_col;
-		c.unselect();
-		return;
-	}
-	c.unselect();
-	c.logMove(c.human, p.num, save_col, save_row, p.col, p.row);
+	c.drawBoard();
+	c.drawAllPieces();
 	c.aiKing();
 }
 
@@ -229,17 +224,12 @@ c.aiKing = function() {
 	for (dr = -1; dr <= 1; dr++) {
 		for (dc = -1; dc <= 1; dc++) {
 			if (dr == 0 && dc == 0) continue; // must move
-			var nr = sr + dr;
-			var nc = sc + dc;
+			var nr = king.row + dr;
+			var nc = king.col + dc;
 			if (nr >= c.n_rows || nr < 0
 				 || nc >= c.n_cols || nc < 0)
 				continue; // edge of board
-			//alert("nr = " + nr + ", nc = " + nc);
-			king.row = nr;
-			king.col = nc;
-			//c.drawBoard();
-			//c.drawAllPieces();
-			if (! c.threatened(c.ai, 0)) {
+			if (! c.check(c.ai, nr, nc)) {
 				moves.push({"r":nr,"c":nc});
 				//alert("Escape");
 			} //else {
@@ -247,10 +237,9 @@ c.aiKing = function() {
 			//}
 		}
 	}
+	console.log(moves);
 	if (moves.length == 0) {
-		king.row = sr;
-		king.col = sc;	
-		if (c.threatened(c.ai, 0)) {
+		if (c.check(c.ai, king.row, king.col)) {
 			$('ol li:last').append('#');
 			$('#status').append("Checkmate!");
 		} else {
@@ -260,15 +249,16 @@ c.aiKing = function() {
 		return;
 	}
 	var m = c.ir(moves.length);
-	king.row = moves[m].r;
-	king.col = moves[m].c;
-	if (c.ps[c.human].piece[1].row == king.row
-		&& c.ps[c.human].piece[1].col == king.col) {
+	if (c.ps[c.human].piece[1].row == moves[m].r
+		&& c.ps[c.human].piece[1].col == moves[m].c) {
 		c.ps[c.human].piece[1] = {};
 		$('ol li:last').append('?');
 		$('#status').append("Stalemate (queen captured).");
 	}
-	c.logMove(c.ai, c.king, sc, sr, king.col, king.row);
+	c.logMove(c.ai, c.king, king.col, king.row, moves[m].c, moves[m].r);
+	king.row = moves[m].r;
+	king.col = moves[m].c;
+
 	c.drawBoard();
 	c.drawAllPieces();
 }
@@ -284,6 +274,19 @@ c.drawAllPieces = function () {
 	}
 }
 
+// bool: moving king here would be in check
+c.check = function(player, row, col) {
+	var king = c.ps[player].piece[0];
+	var save_row = king.row;
+	var save_col = king.col;
+	king.row = row;
+	king.col = col;
+	var check = c.threatened(player, 0);
+	king.row = save_row;
+	king.col = save_col;
+	return check;
+}
+
 // bool: player's #piece can be captured by opponent
 c.threatened = function(player, piece) {
 	var other = 1 ^ player;
@@ -297,7 +300,7 @@ c.threatened = function(player, piece) {
 	return false;
 }
 
-// bool: player's from piece can capture opponents to piece
+// bool: player's from piece can capture opponent's to piece
 c.threat = function(player, from_p, to_p) {
 //	console.log(c);
 	var piece_type = c.ps[player].piece[from_p].num;
@@ -444,7 +447,8 @@ c.drawPiece = function(player, piece) {
 	var col;
 	for (row = 0; row < c.n_rows; ++row) {
 		for (col = 0; col < c.n_cols; ++col) {
-			if (c.canMove(p.num, player, p.row, p.col, row, col, true)) {
+			if (c.canMove(p.num, player, p.row, p.col, row, col, true)
+				&& ((p.num != c.king) || !c.check(player, row, col))) {
 
       				var grd = c.ctx.createRadialGradient((col+.5)*c.size, (row+.5)*c.size,
 						 0, (col+.5)*(c.size), (row+.5)*(c.size), c.size/2);
@@ -454,7 +458,7 @@ c.drawPiece = function(player, piece) {
       				grd.addColorStop((row+col+!c.white_on_right)%2, '#00ff00');
       				c.ctx.fillStyle = grd;
 				c.ctx.fillRect(col*c.size, row*c.size, c.size, c.size, 0.1); 
-				console.log(p.num + " " + player + " " + row + " " + col);
+				//console.log(p.num + " " + player + " " + row + " " + col);
 			}
 		}
 	}
