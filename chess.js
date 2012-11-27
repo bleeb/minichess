@@ -40,6 +40,7 @@ c.init = function () {
 	c.drawBoard();
 	$('#status').empty();
 	$('ol').empty();
+	$("#info").empty();
 }
 
 window.onload = function () {
@@ -55,6 +56,39 @@ window.onload = function () {
 			c.toggleField(c.row(e), c.col(e));
 		}
 	});
+
+	$("#tutorial").on("click", function (e) {
+		$("#info").empty();
+		$("#info").append("<br>")
+			.append("To win you must place black in <b>checkmate</b> while avoiding <b>stalemate</b>")
+			.append($("<ul>")
+				.append($("<li>")
+					.append("To be in checkmate, black must be in <b>check</b>, and have no legal moves"))
+				.append($("<li>")
+					.append("Black is in check when the white queen can move into the black king's square"))
+				.append($("<li>")
+					.append("Neither king can legally move into a square controlled by a piece of the other color"))
+				.append($("<li>")
+					.append("If black has no legal moves but is not in check, the game ends in stalemate"))
+	)});
+
+	$("#help").on("click", function (e) {
+		$("#info").empty();
+		$("#info").append("<br>")
+			.append("Play the white pieces to checkmate black.")
+			.append($("<ul>")
+				.append($("<li>")
+					.append("Click a white piece to select"))
+				.append($("<li>")
+					.append("Click another square to move the selected piece"))
+				.append($("<li>")
+					.append("Right-click a piece to preview its legal moves"))
+				.append($("<li>")
+					.append("Right-click again to remove preview"))
+				.append($("<li>")
+					.append("Choose board size and click <b>start</b> for new game"))
+	)});
+
 //	setTimeout(function () {
 //		c.drawAllPieces();
 //	}, 5000); // wait for spritesheet to load

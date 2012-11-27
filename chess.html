@@ -6,11 +6,19 @@ Mini Chess
 </title>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
 <script src="chess.js"></script>
+<style>
+body {
+	font-family: sans-serif;
+}
+ol, ul {
+	list-style-position: inside;
+}
+</style>
 </head>
 <body>
 <canvas style="float:left" id="board" width="480" height="480"></canvas>
-<input type="radio" name="size" value="3">3
-<input type="radio" name="size" value="4" checked>4
+<input type="radio" name="size" value="3" checked>3
+<input type="radio" name="size" value="4">4
 <input type="radio" name="size" value="5">5
 <input type="radio" name="size" value="6">6
 <input type="radio" name="size" value="7">7
@@ -19,6 +27,12 @@ Mini Chess
 <ol style="list-style-position:inside">
 </ol>
 <div id="status">
+</div>
+<br />
+<b>MINI CHESS</b>
+<br />
+<input type="button" value="help" id="help" /><input type="button" value="tutorial" id="tutorial" />
+<div id="info">
 </div>
 </body>
 </html>

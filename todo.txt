@@ -1,6 +1,9 @@
- 19. help / intro
+ 20. in king move preview, don't allow king to move into check
+ 23. indicate in annotations / status when king is in check
   7. tutorial: show move possibilites for each piece
+ 21. implement threefold repetition draw
  15. make sure we don't draw pieces before board (sprite onload) 
+ 22. add king-rook variant instead of king-queen
  10. automated test: selenium or watir
  13. controls to change piece set 
  14. break styles into .css file
@@ -10,6 +13,7 @@
 
 done
 
+ 19. help / intro
   8. Firefox - onclick doesn't 
  12. controls to restart game
  11. controls to resize board
