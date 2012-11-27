@@ -191,6 +191,11 @@ c.move = function (e) {
 	c.logMove(c.human, p.num, p.col, p.row, col, row);
 	p.row = row;
 	p.col = col;
+	if (c.threatened(c.ai, 0)) {
+		$("ol li:last").append("+");
+	//	$("#status").append("Check!").append($("<br>"));
+	}
+
 
 	c.drawBoard();
 	c.drawAllPieces();
@@ -202,7 +207,6 @@ c.logMove = function(player, piece_num, fc, fr, tc, tr) {
 	var move_str = codes[piece_num]
 		 + String.fromCharCode(fc+"a".charCodeAt(0)) + (c.n_rows - fr) + "-"
 		 + String.fromCharCode(tc+"a".charCodeAt(0)) + (c.n_rows - tr);
-
 	if (player === c.human) {
 		$('ol').append(
 			$('<li>').append(move_str)
@@ -237,10 +241,12 @@ c.aiKing = function() {
 			//}
 		}
 	}
-	console.log(moves);
+	//console.log(moves);
 	if (moves.length == 0) {
 		if (c.check(c.ai, king.row, king.col)) {
-			$('ol li:last').append('#');
+			// replace check with checkmate
+			var v = $("ol li:last").html().replace(/\+$/g,'#');
+			$("ol li:last").html(v);
 			$('#status').append("Checkmate!");
 		} else {
 			$('ol li:last').append('?');
@@ -258,7 +264,10 @@ c.aiKing = function() {
 	c.logMove(c.ai, c.king, king.col, king.row, moves[m].c, moves[m].r);
 	king.row = moves[m].r;
 	king.col = moves[m].c;
-
+	if (c.threatened(c.player, 0)) {
+		 $("ol li:last").append("+");
+//		$("#status").append("In check!").append($("<br>"));
+	}
 	c.drawBoard();
 	c.drawAllPieces();
 }

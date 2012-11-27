@@ -1,9 +1,12 @@
- 23. indicate in annotations / status when king is in check
+ 24. if a piece has no legal moves, right click should blink
   7. tutorial: show move possibilites for each piece
- 21. implement threefold repetition draw
- 15. make sure we don't draw pieces before board (sprite onload) 
- 22. add king-rook variant instead of king-queen
+ 26. add a move timer
+ 25. saved games feature for testing and 3fold checking
  10. automated test: selenium or watir
+ 21. implement threefold repetition draw
+ 22. add king-rook variant instead of king-queen
+
+ 15. make sure we don't draw pieces before board (sprite onload) 
  13. controls to change piece set 
  14. break styles into .css file
  16. when mousing over a square w/ piece selected, preview attacked squares
@@ -12,6 +15,7 @@
 
 done
 
+ 23. indicate in annotations when king is in check
  20. in king move preview, don't allow king to move into check
  19. help / intro
   8. Firefox - onclick doesn't 
