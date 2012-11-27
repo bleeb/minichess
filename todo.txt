@@ -1,4 +1,3 @@
- 20. in king move preview, don't allow king to move into check
  23. indicate in annotations / status when king is in check
   7. tutorial: show move possibilites for each piece
  21. implement threefold repetition draw
@@ -13,6 +12,7 @@
 
 done
 
+ 20. in king move preview, don't allow king to move into check
  19. help / intro
   8. Firefox - onclick doesn't 
  12. controls to restart game
